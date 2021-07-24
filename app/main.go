@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"os"
+	"log"
+
+	"github.com/razorpay/asana-github-action/asana"
 )
 
 /*
@@ -20,11 +23,27 @@ import (
 		* Created
         * changes state to draft
         * closed --> not sure if we can delete the task or not, lets see if we can, depends on asana
- */
+*/
+
+func setupAsana() {
+	asana.SetConfig(asana.Config{
+		ProjectId:   "1200653787952913",
+		AccessToken: "",
+	})
+
+	asana.SetCore()
+}
+
+func bootUp() {
+	setupAsana()
+}
 
 func main() {
-	name := os.Args[1]
-	time := os.Args[2]
-	fmt.Printf("::set-output name=time::%s\n", time)
-	fmt.Printf("::debug Hey Man you said :%s\n", name)
+	bootUp()
+
+	task, err := asana.GetCore().CreateTask(context.Background(), asana.GetConfig().ProjectId, "anubhav-this-works", "")
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(task)
 }
