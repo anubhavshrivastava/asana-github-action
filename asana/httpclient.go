@@ -7,14 +7,14 @@ import (
 	"net/http"
 )
 
-func Post(url string, data interface{}, responseHolder interface{}, headers map[string]string) error {
+func Call(url string, data interface{}, responseHolder interface{}, headers map[string]string, method string) error {
 	dataJson, err := json.Marshal(data)
 	if err != nil {
 		err := fmt.Errorf("unable to marshal the request: %v", data)
 		return err
 	}
 
-	httpRequest, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(dataJson))
+	httpRequest, err := http.NewRequest(method, url, bytes.NewBuffer(dataJson))
 	if err != nil {
 		err := fmt.Errorf("unable to initiate create task request: %v\n", err)
 		return err

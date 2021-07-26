@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/razorpay/asana-github-action/asana"
@@ -41,9 +40,14 @@ func bootUp() {
 func main() {
 	bootUp()
 
-	task, err := asana.GetCore().CreateTask(context.Background(), asana.GetConfig().ProjectId, "anubhav-this-works", "")
+	// task, err := asana.GetCore().CreateTask(context.Background(), asana.GetConfig().ProjectId, "anubhav-this-works", "")
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+	// fmt.Println(task)
+
+	err := asana.GetCore().DeleteTask(context.Background(), "1200654057175988")
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println(task)
 }
