@@ -32,8 +32,8 @@ func Call(url string, data interface{}, responseHolder interface{}, headers map[
 		return err
 	}
 
-	if response.StatusCode != 201 {
-		return fmt.Errorf("non-201 status code: %v", err)
+	if response.StatusCode != 201 && response.StatusCode != 200 {
+		return fmt.Errorf("non-OK status code: %v", response.Body)
 	}
 
 	err = json.NewDecoder(response.Body).Decode(responseHolder)

@@ -45,9 +45,24 @@ func main() {
 	// 	log.Println(err)
 	// }
 	// fmt.Println(task)
+	// err := asana.GetCore().CompleteTask(context.Background(), "1200654190639954")
+	// if err != nil {
+	// 	log.Println(err)
+	// }
 
-	err := asana.GetCore().DeleteTask(context.Background(), "1200654057175988")
+	// err := asana.GetCore().CreateSubtask(context.Background(), "1200654190639954", "sub task is me" , "")
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+
+	err := asana.GetCore().AddAssignee(context.Background(), "1200654190639954", "prashant.saraswat@razorpay.com")
 	if err != nil {
 		log.Println(err)
 	}
+
+
+	// err := asana.GetCore().DeleteTask(context.Background(), "1200654057175988")
+	// if err != nil {
+	// 	log.Println(err)
+	// }
 }
