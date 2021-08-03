@@ -1,4 +1,4 @@
-package asana
+package github
 
 type Config struct {
 	AccessToken string
@@ -14,5 +14,6 @@ func GetConfig() Config {
 	if conf == nil {
 		panic("asana configuration is not done yet")
 	}
+
 	return *conf
 }

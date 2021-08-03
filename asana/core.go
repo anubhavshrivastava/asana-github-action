@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/razorpay/asana-github-action/httpclient"
 )
 
 // all the app logic here
@@ -44,7 +46,7 @@ func (i *impl) AddAssignee(ctx context.Context, taskGid string, email string) er
 			Assignee: email,
 		},
 	}
-	err := Call(url, request, &responseHolder, headers(), http.MethodPut)
+	err := httpclient.Call(url, request, &responseHolder, headers(), http.MethodPut)
 	if err != nil {
 		log.Println(err)
 	}
@@ -64,7 +66,7 @@ func (i *impl) CreateSubtask(ctx context.Context, parentTaskGid string, subtaskN
 			Assignee: subtaskAssigneeEmail,
 		},
 	}
-	err := Call(url, request, &responseHolder, headers(), http.MethodPost)
+	err := httpclient.Call(url, request, &responseHolder, headers(), http.MethodPost)
 	if err != nil {
 		log.Println(err)
 	}
@@ -83,7 +85,7 @@ func (i *impl) CompleteTask(ctx context.Context, taskGid string) error {
 			Completed: "true",
 		},
 	}
-	err := Call(url, request, &responseHolder, headers(), http.MethodPut)
+	err := httpclient.Call(url, request, &responseHolder, headers(), http.MethodPut)
 	if err != nil {
 		log.Println(err)
 	}
@@ -107,7 +109,7 @@ func (i *impl) CreateTask(ctx context.Context, projectGId string, taskName strin
 	}
 
 	responseHolder := TaskObjectResponse{Data: Task{}}
-	err := Call(url, request, &responseHolder, headers(), http.MethodPost)
+	err := httpclient.Call(url, request, &responseHolder, headers(), http.MethodPost)
 	if err != nil {
 		log.Println(err)
 	}
@@ -121,7 +123,7 @@ func (i *impl) DeleteTask(ctx context.Context, taskGid string) error {
 	url := fmt.Sprintf("%s/%s/%s", BasePath, TaskPath, taskGid)
 
 	responseHolder := TaskObjectResponse{Data: Task{}}
-	err := Call(url, nil, &responseHolder, headers(), http.MethodDelete)
+	err := httpclient.Call(url, nil, &responseHolder, headers(), http.MethodDelete)
 	if err != nil {
 		log.Println(err)
 	}
