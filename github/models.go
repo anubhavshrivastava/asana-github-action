@@ -1,6 +1,7 @@
 package github
 
 type PR struct {
+	Title              string     `json:"title"`
 	Body               string     `json:"body"`
 	RequestedReviewers []Reviewer `json:"requested_reviewers"`
 	Draft              bool       `json:"draft"`

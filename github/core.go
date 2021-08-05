@@ -10,7 +10,7 @@ import (
 
 type ICore interface {
 	GetPR(ctx context.Context, prLink string) (*PR, error)
-	UpdatePR(ctx context.Context, updatePrRequest UpdatePR) (*PR, error)
+	UpdatePR(ctx context.Context, prLink string, updatePrRequest UpdatePR) (*PR, error)
 }
 
 type impl struct{}
@@ -35,10 +35,13 @@ func (i impl) GetPR(ctx context.Context, prLink string) (*PR, error) {
 	return &pr, nil
 }
 
-func (i impl) UpdatePR(ctx context.Context, updatePrRequest UpdatePR) (*PR, error) {
-	// for now this will just blindly update things
-	// this is the one that will be used for updating the body with all the task details
-	return nil, nil
+func (i impl) UpdatePR(ctx context.Context, prLink string, updatePrRequest UpdatePR) (*PR, error) {
+	var pr PR
+	err := httpclient.Call(prLink, updatePrRequest, &pr, headers(), http.MethodPatch)
+	if err != nil {
+		return nil, err
+	}
+	return &pr, nil
 }
 
 func headers() map[string]string {

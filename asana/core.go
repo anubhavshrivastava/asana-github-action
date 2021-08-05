@@ -105,6 +105,7 @@ func (i *impl) CreateTask(ctx context.Context, projectGId string, taskName strin
 		Data: CreateTaskRequest{
 			Name:     taskName,
 			Projects: []string{projectGId},
+			Assignee: assigneeEmail,
 		},
 	}
 

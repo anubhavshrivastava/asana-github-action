@@ -11,16 +11,17 @@ type TaskObjectResponse struct {
 type CreateTaskRequest struct {
 	Name     string   `json:"name"`
 	Projects []string `json:"projects,omitempty"`
-	Assignee string `json:"assignee,omitempty"`
+	Assignee string   `json:"assignee,omitempty"`
 }
 
 type UpdateTaskRequest struct {
 	Completed string `json:"completed,omitempty"` // true / false
-	Assignee string `json:"assignee,omitempty"` // true / false
+	Assignee  string `json:"assignee,omitempty"`  // true / false
 }
 
 type Task struct {
-	Gid       string `json:"gid"`
-	Name      string `json:"name"`
-	Completed bool   `json:"completed"`
+	Gid          string `json:"gid"`
+	Name         string `json:"name"`
+	Completed    bool   `json:"completed"`
+	PermaLinkUrl string `json:"permalink_url"`
 }

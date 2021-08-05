@@ -5,3 +5,9 @@ const (
 	TaskPath        = "tasks"
 	JsonContentType = "application/json"
 )
+
+var ReviewerType = struct {
+	User string
+}{
+	User: "User",
+}
