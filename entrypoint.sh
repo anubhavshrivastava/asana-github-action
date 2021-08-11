@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./bin/asana_action $@
+/bin/asana_action $@
