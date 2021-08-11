@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"regexp"
 
 	"github.com/razorpay/asana-github-action/asana"
 	"github.com/razorpay/asana-github-action/github"
@@ -36,11 +37,11 @@ func ProcessPR() {
 
 	// now that this is done, check the body
 	// for now let this be empty, lets take that up in a bit
-	asanaTasksInBody, err := parsePRBodyForAsanaTags(pr.Body)
+	assigneeToTaskMap, err := parsePRBodyForAsanaTags(pr.Body)
 
-	if len(asanaTasksInBody) != 0 {
-		// here you get the tasks from asana and load them up for more information
-		// we may need to update their assignees or delete them, but that is later
+	if err != nil {
+		log.Printf("some error in parsing body, exiting")
+		return
 	}
 
 	// not you get the emails of these assignees and create the task and the sub-task on them
@@ -54,9 +55,16 @@ func ProcessPR() {
 			continue
 		}
 
-		asanaUserEmail, ok := githubUserNameToAsanaEmail[reviewer.Login]
+		asanaUserEmail, ok := getUserMapping(getConfig().UserMapping)[reviewer.Login]
 		if !ok {
 			log.Printf("no email mapped to user %s, unable to create PR Review Task on Asana\n", reviewer.Login)
+			continue
+		}
+
+		// check if the task for this is already there, in which case we skip this user
+		if task, ok := assigneeToTaskMap[asanaUserEmail]; ok {
+			log.Printf("asana task for %s is already present, skipping", asanaUserEmail)
+			asanaLineItems = append(asanaLineItems, task)
 			continue
 		}
 
@@ -85,13 +93,7 @@ func ProcessPR() {
 
 	// if they were created, then we add them to the PR description and update github
 	asanaTaskPRDescription := generatePRDescriptionWithAsanaTasks(asanaLineItems)
-
-	currentBody := pr.Body
-	currentBody = currentBody + "\n" + asanaTaskPRDescription
-	// update github PR Description
-	pr, err = github.GetCore().UpdatePR(ctx, getConfig().PRLink, github.UpdatePR{
-		Body: currentBody,
-	})
+	err = updateGithubPR(ctx, asanaTaskPRDescription, pr)
 
 	if err != nil {
 		log.Printf("unable to update PR description due to %s", err.Error())
@@ -100,18 +102,56 @@ func ProcessPR() {
 	log.Printf("updated PR with asana task description %s", asanaTaskPRDescription)
 }
 
+func getUserMapping(something string) map[string]string {
+	return githubUserNameToAsanaEmail
+}
+
+func updateGithubPR(ctx context.Context, asanaDesc string, pr *github.PR) error {
+	currentBody := pr.Body
+	re := regexp.MustCompile("<asana>.*</asana>")
+	descAlreadyPresent := re.MatchString(currentBody)
+	if descAlreadyPresent {
+		currentBody = re.ReplaceAllString(currentBody, asanaDesc)
+	} else {
+		currentBody = currentBody + "\n" + asanaDesc
+	}
+
+	// update github PR Description
+	_, err := github.GetCore().UpdatePR(ctx, getConfig().PRLink, github.UpdatePR{
+		Body: currentBody,
+	})
+
+	return err
+}
+
 func generatePRDescriptionWithAsanaTasks(asanaTasks []AsanaGithubDescriptionLineItem) string {
 	descriptionTemplate := "<asana>%s</asana>"
-	tasksStr, _ := json.Marshal(asanaTasks)
-	desc := fmt.Sprintf(descriptionTemplate, tasksStr)
+	var tasksStr []byte
+	tasksStr, _ = json.Marshal(asanaTasks)
+	desc := fmt.Sprintf(descriptionTemplate, string(tasksStr))
 	return desc
 }
 
-func parsePRBodyForAsanaTags(body string) ([]AsanaGithubDescriptionLineItem, error) {
-	var tasks []AsanaGithubDescriptionLineItem
-	if body == "" {
-		return tasks, nil
+func parsePRBodyForAsanaTags(body string) (map[string]AsanaGithubDescriptionLineItem, error) {
+	log.Printf("parsing %s to extract asana information\n", body)
+	re := regexp.MustCompile("<asana>(?P<json_body>.*)</asana>")
+	match := re.FindStringSubmatch(body)
+	if len(match) != 2 {
+		// basically no data found
+		return map[string]AsanaGithubDescriptionLineItem{}, nil
 	}
 
-	return tasks, nil
+	var response []AsanaGithubDescriptionLineItem
+	err := json.Unmarshal([]byte(match[1]), &response)
+	if err != nil {
+		log.Printf("unable to understand the asana data: %v", match[1])
+		return nil, err
+	}
+
+	// now we have that data, return that, or pre-process it ?
+	var x = make(map[string]AsanaGithubDescriptionLineItem)
+	for _, line := range response {
+		x[line.Assignee] = line
+	}
+	return x, nil
 }

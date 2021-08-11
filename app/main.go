@@ -32,11 +32,12 @@ func setupGithub(githubToken string) {
 	})
 }
 
-func bootUp(asanaProjectGid string, prLink string, githubToken string, asanaToken string) {
+func bootUp(asanaProjectGid string, prLink string, githubToken string, asanaToken string, userMapping string) {
 	/* Setup Service */
 	service.SetConfig(&service.Config{
 		AsanaProjectGid: asanaProjectGid,
 		PRLink:          prLink,
+		UserMapping:     userMapping,
 	})
 
 	/* Setup Asana */
@@ -51,45 +52,24 @@ func bootUp(asanaProjectGid string, prLink string, githubToken string, asanaToke
 }
 
 func main() {
+	log.Printf("all my agrs brother: %v", os.Args)
+	return
 	args := os.Args
 
 	log.Println(args)
 	if len(args) <= 3 {
 		panic("insufficient number of arguments, 3 required")
 	}
+
 	log.Println("assuming the args being sent in the order of 'Asana Project GID', 'PR Link', 'GITHUB_TOKEN', 'ASANA_TOKEN'")
 	asanaProjectGid := args[1]
 	prLink := args[2]
 	githubToken := args[3]
 	asanaToken := args[4]
+	userMapping := args[5]
 
-	bootUp(asanaProjectGid, prLink, githubToken, asanaToken)
+	bootUp(asanaProjectGid, prLink, githubToken, asanaToken, userMapping)
 
 	// initiate processing
 	service.ProcessPR()
 }
-
-// task, err := asana.GetCore().CreateTask(context.Background(), asana.GetConfig().ProjectId, "anubhav-this-works", "")
-// if err != nil {
-// 	log.Println(err)
-// }
-// fmt.Println(task)
-// err := asana.GetCore().CompleteTask(context.Background(), "1200654190639954")
-// if err != nil {
-// 	log.Println(err)
-// }
-
-// err := asana.GetCore().CreateSubtask(context.Background(), "1200654190639954", "sub task is me" , "")
-// if err != nil {
-// 	log.Println(err)
-// }
-
-// err := asana.GetCore().AddAssignee(context.Background(), "1200654190639954", "prashant.saraswat@razorpay.com")
-// if err != nil {
-// 	log.Println(err)
-// }
-
-// err := asana.GetCore().DeleteTask(context.Background(), "1200654057175988")
-// if err != nil {
-// 	log.Println(err)
-// }
