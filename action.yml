@@ -2,15 +2,27 @@
 name: 'Asana Github Action'
 description: 'Creates an Asana Task when a PR is created'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  ASANA_PROJECT_ID:
+    description: 'Asana Project ID where the PR Tasks will be created'
     required: true
-    default: 'World'
-outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+  PR_LINK:
+    description: 'The PR to be reviewed'
+    required: true
+  GITHUB_TOKEN:
+    description: 'Github Token to access the PR information'
+    required: true
+  ASANA_TOKEN:
+    description: 'Asana Token to update the Asana Board with the created tasks'
+    required: true
+  USER_MAPPER:
+    description: 'A json string with the mapping of github-username to asana-email-id'
+    required: true
 runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ inputs.who-to-greet }}
+    - ${{ inputs.ASANA_PROJECT_ID }}
+    - ${{ inputs.PR_LINK }}
+    - ${{ inputs.GITHUB_TOKEN }}
+    - ${{ inputs.ASANA_TOKEN }}
+    - ${{ inputs.USER_MAPPER }}
