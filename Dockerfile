@@ -1,6 +1,6 @@
 # Container image that runs your code
 FROM golang:1.16
-WORKDIR /go/src/app
+WORKDIR /go/src/asana_github_action
 COPY . .
 
 # Copies your code file from your action repository to the filesystem path `/` of the container
